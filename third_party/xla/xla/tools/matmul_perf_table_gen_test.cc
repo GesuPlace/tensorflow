@@ -18,6 +18,7 @@ limitations under the License.
 #include <variant>
 
 #include <gtest/gtest.h>
+#include "xla/service/gpu/model/hlo_op_profile.pb.h"
 #include "xla/stream_executor/device_description.h"
 #include "xla/tests/hlo_test_base.h"
 
@@ -43,6 +44,9 @@ class MatmulPerfTableGenTest : public HloTestBase {
 
 TEST_F(MatmulPerfTableGenTest, DryRunsSpecifiedSweepSpace) {
   MatmulPerfTableGen::Config cfg;
+  cfg.b_spec.start = 1;
+  cfg.b_spec.stop = 1;
+  cfg.b_spec.step = 1;
   cfg.k_spec.start = 1;
   cfg.k_spec.stop = 1;
   cfg.k_spec.step = 1;
@@ -65,6 +69,9 @@ TEST_F(MatmulPerfTableGenTest, DryRunsSpecifiedSweepSpace) {
 
 TEST_F(MatmulPerfTableGenTest, DryRunsFactorSweepSpace) {
   MatmulPerfTableGen::Config cfg;
+  cfg.b_spec.start = 1;
+  cfg.b_spec.stop = 1;
+  cfg.b_spec.step = 1;
   cfg.k_spec.start = 1;
   cfg.k_spec.stop = 1;
   cfg.k_spec.step = 1;
@@ -87,6 +94,9 @@ TEST_F(MatmulPerfTableGenTest, DryRunsFactorSweepSpace) {
 
 TEST_F(MatmulPerfTableGenTest, SweepSpaceSavesOperands) {
   MatmulPerfTableGen::Config cfg;
+  cfg.b_spec.start = 1;
+  cfg.b_spec.stop = 1;
+  cfg.b_spec.step = 1;
   cfg.k_spec.start = 1;
   cfg.k_spec.stop = 1;
   cfg.k_spec.step = 1;
@@ -110,6 +120,9 @@ TEST_F(MatmulPerfTableGenTest, SweepSpaceSavesOperands) {
 
 TEST_F(MatmulPerfTableGenTest, SweepSpaceSavesFlops) {
   MatmulPerfTableGen::Config cfg;
+  cfg.b_spec.start = 1;
+  cfg.b_spec.stop = 1;
+  cfg.b_spec.step = 1;
   cfg.k_spec.start = 8;
   cfg.k_spec.stop = 8;
   cfg.k_spec.step = 1;

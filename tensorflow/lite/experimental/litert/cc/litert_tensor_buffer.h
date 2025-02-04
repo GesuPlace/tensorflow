@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "absl/types/span.h"
+#include <CL/cl.h>
 #include "tensorflow/lite/experimental/litert/c/litert_common.h"
 #include "tensorflow/lite/experimental/litert/c/litert_event.h"
 #include "tensorflow/lite/experimental/litert/c/litert_model.h"
@@ -157,6 +158,22 @@ class TensorBuffer
 #endif
   }
 
+  Expected<cl_mem> GetOpenClBuffer() const {
+#if LITERT_HAS_OPENCL_SUPPORT
+    cl_mem cl_mem;
+    if (LiteRtGetTensorBufferOpenClBuffer(Get(), &cl_mem) == kLiteRtStatusOk) {
+      return cl_mem;
+    } else {
+      return litert::Unexpected(
+          kLiteRtStatusErrorRuntimeFailure,
+          "Failed to get OpenCL buffer from tensor buffer");
+    }
+#else
+    return litert::Unexpected(kLiteRtStatusErrorRuntimeFailure,
+                              "OpenCL is not supported on this platform");
+#endif
+  }
+
   Expected<LiteRtTensorBufferType> BufferType() const {
     LiteRtTensorBufferType tensor_buffer_type;
     if (auto status = LiteRtGetTensorBufferType(Get(), &tensor_buffer_type);
@@ -208,8 +225,13 @@ class TensorBuffer
     return Event(event, /*owned=*/false);
   }
 
-  Expected<void> SetEvent(Event e) {
-    if (auto status = LiteRtSetTensorBufferEvent(Get(), e.Get());
+  // The function takes ownership of the passed event e.
+  Expected<void> SetEvent(Event&& e) {
+    if (!e.IsOwned()) {
+      return Error(kLiteRtStatusErrorInvalidArgument,
+                   "Expected an owned event");
+    }
+    if (auto status = LiteRtSetTensorBufferEvent(Get(), e.Release());
         status != kLiteRtStatusOk) {
       return Error(status, "Failed to set tensor buffer event");
     }
